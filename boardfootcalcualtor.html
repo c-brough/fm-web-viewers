@@ -370,16 +370,14 @@
   <div class="entry-list" id="entryList"></div>
   <div id="footer">
     <div id="total">Total BF: 0.00</div>
-    <div class="footer-buttons-container"> <!-- Added new container for buttons -->
+    <div class="footer-buttons-container">
         <button id="cancelBtn" class="footer-button">
-            <!-- X icon SVG -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
             <span>Cancel</span>
         </button>
         <button id="submitBtn" class="footer-button" disabled>
-            <!-- Plus icon SVG -->
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/>
             </svg>
@@ -391,21 +389,20 @@
     const entryList = document.getElementById('entryList');
     const totalDisplay = document.getElementById('total');
     const submitBtn = document.getElementById('submitBtn');
-    const cancelBtn = document.getElementById('cancelBtn'); // Get reference to the new cancel button
+    const cancelBtn = document.getElementById('cancelBtn');
     const yourNameInput = document.getElementById('yourName');
     let debounce;
 
     // Function to dynamically place the unit symbol next to the input value
     function placeUnit(input) {
       const unit = input.parentNode.querySelector('.unit');
-      // Only proceed if unit element exists
       if (unit) {
         const len = input.value.length;
         if (len > 0) {
-          unit.style.opacity = '1'; // Show the unit
-          unit.style.left = `calc(${len}ch + 1rem)`; // Adjusted base offset for more spacing
+          unit.style.opacity = '1';
+          unit.style.left = `calc(${len}ch + 1rem)`;
         } else {
-          unit.style.opacity = '0'; // Hide the unit
+          unit.style.opacity = '0';
         }
       }
     }
@@ -435,10 +432,9 @@
     function attachListeners(row) {
       row.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', () => {
-          recalc(); // Recalculate total board footage
-          maybeAddRow(); // Check if a new row should be added
-          toggleSubmit(); // Enable/disable submit button
-          // If the input is within a wrapper, adjust unit position and visibility
+          recalc();
+          maybeAddRow();
+          toggleSubmit(); // Re-evaluate submit button state
           if (input.parentNode.classList.contains('input-wrapper')) {
             placeUnit(input);
           }
@@ -449,7 +445,6 @@
         }
       });
 
-      // Attach listener for the new remove button
       const removeBtn = row.querySelector('.remove-row-btn');
       if (removeBtn) {
           removeBtn.addEventListener('click', () => removeRow(row));
@@ -463,7 +458,6 @@
         const qty = parseFloat(r.querySelector('.qty').value) || 0;
         const width = parseFloat(r.querySelector('.width').value) || 0;
         const length = parseFloat(r.querySelector('.length').value) || 0;
-        // Calculate board footage for the current row and add to total
         total += (qty * width * length) / 12;
       });
       totalDisplay.textContent = `Total BF: ${total.toFixed(2)}`;
@@ -471,39 +465,36 @@
 
     // Function to conditionally add a new row if the last one is filled
     function maybeAddRow() {
-      clearTimeout(debounce); // Clear any existing debounce timer
+      clearTimeout(debounce);
       debounce = setTimeout(() => {
         const rows = document.querySelectorAll('.entry-row');
-        // Get the last row in the list
         const last = rows[rows.length - 1];
-        // Check if all inputs in the last row have values
         if (last && [...last.querySelectorAll('input')].every(i => i.value.trim() !== '')) {
-          // If all inputs are filled, append a new row
           entryList.append(createRow(rows.length + 1));
         }
-      }, 300); // Increased debounce time for mobile typing
+      }, 300);
     }
 
-    // Function to enable/disable the submit button based on valid input
+    // Function to enable/disable the submit button based on valid input AND username
     function toggleSubmit() {
-      // Check if at least one row has all valid (positive) numeric inputs
-      const anyValid = Array.from(document.querySelectorAll('.entry-row')).some(r => {
+      const userNameFilled = yourNameInput.value.trim() !== '';
+      const anyValidRow = Array.from(document.querySelectorAll('.entry-row')).some(r => {
         const qty = parseFloat(r.querySelector('.qty').value);
         const width = parseFloat(r.querySelector('.width').value);
         const length = parseFloat(r.querySelector('.length').value);
         return qty > 0 && width > 0 && length > 0;
       });
-      submitBtn.disabled = !anyValid; // Set button disabled state
+      // Submit button is enabled ONLY if name is filled AND there's at least one valid row
+      submitBtn.disabled = !(userNameFilled && anyValidRow);
     }
 
     // NEW: Function to remove a row
     function removeRow(rowElement) {
-        rowElement.remove(); // Remove the row from the DOM
-        updateRowNumbers(); // Re-index remaining rows
-        recalc(); // Recalculate total
-        toggleSubmit(); // Update submit button state
+        rowElement.remove();
+        updateRowNumbers();
+        recalc();
+        toggleSubmit(); // Re-evaluate submit button state after removal
 
-        // Ensure there's always at least one row for input
         if (entryList.children.length === 0) {
             entryList.append(createRow(1));
         }
@@ -518,8 +509,11 @@
 
     // --- FileMaker Integration ---
     submitBtn.addEventListener('click', () => {
+        // Since the button is disabled if validation fails, we don't need to re-check here
+        // The user can only click it if it's enabled.
+
+        const userName = yourNameInput.value.trim();
         const totalBF = parseFloat(totalDisplay.textContent.replace('Total BF: ', '')) || 0;
-        const userName = yourNameInput.value.trim(); // Get the value from the new name input
 
         const lineItems = [];
         document.querySelectorAll('.entry-row').forEach(r => {
@@ -527,50 +521,43 @@
             const width = parseFloat(r.querySelector('.width').value);
             const length = parseFloat(r.querySelector('.length').value);
 
-            // Only include valid rows in the submitted data
             if (qty > 0 && width > 0 && length > 0) {
                 lineItems.push({
                     qty: qty,
                     width: width,
                     length: length,
-                    boardFeet: (qty * width * length) / 12 // Calculate individual line BF
+                    boardFeet: (qty * width * length) / 12
                 });
             }
         });
 
-        // Prepare the data to send as a JSON object, now including line items and user name
         const dataToSend = JSON.stringify({
-            userName: userName, // Include the user's name
+            userName: userName,
             totalBoardFootage: totalBF,
-            lineItems: lineItems // Array of individual line item data
+            lineItems: lineItems
         });
 
-        // Check if the FileMaker object exists (meaning it's running in a FileMaker Web Viewer)
         if (window.FileMaker) {
-            // Call a FileMaker script named 'inventory.submitBFCalc' and pass the data as a parameter
             FileMaker.PerformScript('inventory.submitBFCalc', dataToSend);
         } else {
-            // For testing in a regular browser, log to the console
             console.log("FileMaker object not found. Running in browser.");
             console.log("Simulating FileMaker.PerformScript('inventory.submitBFCalc',", dataToSend, ")");
-            // Optionally, you could show a custom alert here for browser testing
-            // alert("Total BF: " + totalBF + "\n(Data sent to console, not FileMaker)"); // Re-enable for browser testing if needed
         }
     });
 
-    // NEW: Cancel button event listener
     cancelBtn.addEventListener('click', () => {
         if (window.FileMaker) {
-            FileMaker.PerformScript('inventory.cancelBFCalc', 'true'); // Send a parameter indicating cancellation
+            FileMaker.PerformScript('inventory.cancelBFCalc', 'true');
         } else {
             console.log("FileMaker object not found. Running in browser.");
             console.log("Simulating FileMaker.PerformScript('inventory.cancelBFCalc', 'true')");
-            // alert("User Cancelled action simulated."); // Re-enable for browser testing if needed
         }
     });
 
-    // Initial setup: Add the first row when the page loads
+    // Initial setup: Add the first row and set up initial button state
     entryList.append(createRow(1));
+    yourNameInput.addEventListener('input', toggleSubmit); // Listen to name input for validation
+    toggleSubmit(); // Set initial state of submit button
   </script>
 </body>
 </html>
