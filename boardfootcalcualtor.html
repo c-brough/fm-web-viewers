@@ -547,13 +547,12 @@
 
         // Check if the FileMaker object exists (meaning it's running in a FileMaker Web Viewer)
         if (window.FileMaker) {
-            // Call a FileMaker script named 'Save Total BF' and pass the data as a parameter
-            // Ensure you have a FileMaker script with this exact name in your solution
-            FileMaker.PerformScript('Save Total BF', dataToSend);
+            // Call a FileMaker script named 'inventory.submitBFCalc' and pass the data as a parameter
+            FileMaker.PerformScript('inventory.submitBFCalc', dataToSend);
         } else {
             // For testing in a regular browser, log to the console
             console.log("FileMaker object not found. Running in browser.");
-            console.log("Simulating FileMaker.PerformScript('Save Total BF',", dataToSend, ")");
+            console.log("Simulating FileMaker.PerformScript('inventory.submitBFCalc',", dataToSend, ")");
             // Optionally, you could show a custom alert here for browser testing
             // alert("Total BF: " + totalBF + "\n(Data sent to console, not FileMaker)"); // Re-enable for browser testing if needed
         }
@@ -562,10 +561,10 @@
     // NEW: Cancel button event listener
     cancelBtn.addEventListener('click', () => {
         if (window.FileMaker) {
-            FileMaker.PerformScript('User Cancelled', 'true'); // Send a parameter indicating cancellation
+            FileMaker.PerformScript('inventory.cancelBFCalc', 'true'); // Send a parameter indicating cancellation
         } else {
             console.log("FileMaker object not found. Running in browser.");
-            console.log("Simulating FileMaker.PerformScript('User Cancelled', 'true')");
+            console.log("Simulating FileMaker.PerformScript('inventory.cancelBFCalc', 'true')");
             // alert("User Cancelled action simulated."); // Re-enable for browser testing if needed
         }
     });
