@@ -55,6 +55,18 @@
         outline-offset: 1px;
     }
 
+    /* NEW: Style for thickness display */
+    #thicknessDisplay {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        color: #666;
+        font-weight: bold;
+        background-color: #e9e9e9;
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
     /* Entry List Container */
     .entry-list {
       display: flex;
@@ -106,7 +118,6 @@
       pointer-events: none;
       color: #999;
       font-size: 1rem; /* Slightly larger unit text */
-      /* Adjusted default offset in CSS as well for consistency, though JS overrides it */
       left: 0.75rem;
       opacity: 0; /* Initially hidden */
       transition: opacity 0.1s ease-in-out; /* Smooth transition for visibility */
@@ -148,70 +159,70 @@
       background: #fff;
       border-top: 1px solid #ddd;
       display: flex;
-      justify-content: space-between; /* Keeps total on left, buttons on right */
+      justify-content: space-between;
       align-items: center;
-      padding: 1rem; /* Increased padding for footer */
-      box-shadow: 0 -2px 4px rgba(0,0,0,0.1); /* Slightly more prominent shadow */
+      padding: 1rem;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
     }
     #total {
-      font-size: 1.25rem; /* Larger total display */
+      font-size: 1.25rem;
       font-weight: bold;
-      color: #0091CE; /* Changed to match header color */
+      color: #0091CE;
     }
 
     /* Container for Submit and Cancel buttons */
     .footer-buttons-container {
-        display: flex; /* Arrange buttons horizontally */
-        gap: 0.75rem; /* Space between buttons */
+        display: flex;
+        gap: 0.75rem;
     }
 
     /* Common Button Styles for Submit and Cancel */
     .footer-button {
-      padding: 0.75rem 1.25rem; /* Adjusted padding to match image */
-      background: #fff; /* White background */
-      color: #555; /* Gray text color */
-      border: 1px solid #bbb; /* Gray border */
+      padding: 0.75rem 1.25rem;
+      background: #fff;
+      color: #555;
+      border: 1px solid #bbb;
       border-radius: 6px;
       font-size: 1.1rem;
       cursor: pointer;
       transition: background 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
-      box-shadow: none; /* Remove existing shadow for a flatter look */
+      box-shadow: none;
 
-      display: flex; /* Enable flexbox for icon and text alignment */
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem; /* Space between icon and text */
+      gap: 0.5rem;
     }
     .footer-button svg {
-        fill: #555; /* Icon color matches text */
-        width: 20px; /* Size of the icon */
+        fill: #555;
+        width: 20px;
         height: 20px;
         transition: fill 0.2s ease-in-out;
     }
 
     .footer-button:disabled {
-      background: #f0f0f0; /* Lighter background when disabled */
-      color: #aaa; /* Lighter text when disabled */
-      border-color: #ddd; /* Lighter border when disabled */
+      background: #f0f0f0;
+      color: #aaa;
+      border-color: #ddd;
       cursor: not-allowed;
       box-shadow: none;
     }
     .footer-button:disabled svg {
-        fill: #aaa; /* Lighter icon when disabled */
+        fill: #aaa;
     }
 
     .footer-button:not(:disabled):hover {
-      background: #f8f8f8; /* Subtle background change on hover */
-      border-color: #999; /* Darker border on hover */
-      color: #333; /* Darker text on hover */
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Subtle shadow on hover */
+      background: #f8f8f8;
+      border-color: #999;
+      color: #333;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     .footer-button:not(:disabled):hover svg {
-        fill: #333; /* Darker icon on hover */
+        fill: #333;
     }
 
     .footer-button:not(:disabled):active {
-        background: #eee; /* Even darker on active/tap */
+        background: #eee;
         border-color: #888;
         color: #222;
     }
@@ -237,11 +248,14 @@
             padding: 0.7rem;
             font-size: 1.05rem;
         }
+        #thicknessDisplay {
+            font-size: 0.95rem;
+            padding: 0.4rem;
+        }
         .entry-list {
             gap: 0.85rem;
         }
         .entry-row {
-            /* Adjusted grid-template-columns for tablets */
             grid-template-columns: 0.5fr 1fr 1.25fr 1.25fr 0.5fr;
             padding: 0.65rem;
             gap: 0.4rem;
@@ -251,7 +265,7 @@
             font-size: 1.05rem;
         }
         .input-wrapper .unit {
-            left: 0.7rem; /* Adjust unit offset */
+            left: 0.7rem;
         }
         .remove-row-btn {
             width: 28px;
@@ -265,7 +279,7 @@
             font-size: 1.2rem;
         }
         .footer-button {
-            padding: 0.7rem 1.1rem; /* Adjusted padding for tablet */
+            padding: 0.7rem 1.1rem;
             font-size: 1.05rem;
             gap: 0.4rem;
         }
@@ -274,14 +288,14 @@
             height: 18px;
         }
         .footer-buttons-container {
-            gap: 0.5rem; /* Adjust gap for tablets */
+            gap: 0.5rem;
         }
     }
 
     /* For Phones (e.g., iPhone) */
     @media (max-width: 480px) {
         body {
-            padding: 0.5rem; /* Slightly reduced top/bottom padding for more vertical space */
+            padding: 0.5rem;
         }
         h2 {
             font-size: 1.4rem;
@@ -298,49 +312,53 @@
             padding: 0.65rem;
             font-size: 1rem;
         }
+        #thicknessDisplay {
+            font-size: 0.9rem;
+            padding: 0.3rem;
+            margin-bottom: 0.75rem;
+        }
         .entry-list {
-            gap: 0.5rem; /* Smaller gap when stacked */
-            margin-bottom: 6rem; /* Ensure enough space above the fixed footer */
+            gap: 0.5rem;
+            margin-bottom: 6rem;
         }
         .entry-row {
-            /* Stack elements vertically on small screens, remove button becomes full width at bottom */
-            grid-template-columns: 1fr; /* Single column for inputs */
-            gap: 0.5rem; /* Gap between stacked elements */
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
             padding: 0.6rem;
         }
         .entry-row .row-number {
-            text-align: left; /* Align row number to the left when stacked */
-            padding-bottom: 0.25rem; /* Add space below row number */
+            text-align: left;
+            padding-bottom: 0.25rem;
             font-size: 1rem;
         }
         .entry-row input {
-            width: 100%; /* Make inputs full width when stacked */
+            width: 100%;
             padding: 0.65rem;
             font-size: 1rem;
         }
         .input-wrapper .unit {
-            left: 0.65rem; /* Adjust unit offset */
+            left: 0.65rem;
             font-size: 0.95rem;
         }
         .remove-row-btn {
-            width: 100%; /* Make remove button full width when stacked */
-            border-radius: 6px; /* Make it rectangular */
-            margin-top: 0.5rem; /* Space from inputs */
-            height: auto; /* Auto height for padding */
-            padding: 0.5rem; /* Add padding for larger touch target */
+            width: 100%;
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            height: auto;
+            padding: 0.5rem;
             font-size: 1rem;
-            margin-left: 0; /* Remove auto margin when full width */
+            margin-left: 0;
         }
         #footer {
-            padding: 0.65rem; /* Slightly reduced footer padding for more vertical room */
-            flex-direction: column; /* Stack total and button vertically */
-            gap: 0.5rem; /* Gap between stacked footer items */
+            padding: 0.65rem;
+            flex-direction: column;
+            gap: 0.5rem;
         }
         #total {
             font-size: 1.1rem;
         }
         .footer-button {
-            width: 100%; /* Make submit button full width */
+            width: 100%;
             padding: 0.75rem 1rem;
             font-size: 1rem;
             gap: 0.3rem;
@@ -350,10 +368,10 @@
             height: 16px;
         }
         .footer-buttons-container {
-            width: 100%; /* Make button container full width */
-            flex-direction: row; /* Keep buttons horizontal on phone, but they will wrap if space is tight */
-            justify-content: space-around; /* Distribute space if they don't fill 100% */
-            gap: 0.5rem; /* Ensure gap on phones */
+            width: 100%;
+            flex-direction: row;
+            justify-content: space-around;
+            gap: 0.5rem;
         }
     }
 
@@ -366,6 +384,11 @@
     <label for="yourName">Your name:</label>
     <input type="text" id="yourName" placeholder="Enter your name" />
   </div>
+
+  <!-- NEW: Hidden input to store thickness from FileMaker -->
+  <input type="hidden" id="nominalThickness" value="[FMP-InventoryStock::nomThickness]" />
+  <!-- NEW: Element to display the thickness -->
+  <div id="thicknessDisplay"></div>
 
   <div class="entry-list" id="entryList"></div>
   <div id="footer">
@@ -391,7 +414,31 @@
     const submitBtn = document.getElementById('submitBtn');
     const cancelBtn = document.getElementById('cancelBtn');
     const yourNameInput = document.getElementById('yourName');
+    // NEW: Get references to thickness elements
+    const nominalThicknessInput = document.getElementById('nominalThickness');
+    const thicknessDisplay = document.getElementById('thicknessDisplay');
     let debounce;
+
+    // NEW: Variable to store the parsed thickness, default to 1 inch
+    let parsedThickness = 1;
+
+    // NEW: Function to parse fraction string (e.g., "10/4" -> 2.5)
+    function parseFraction(fractionString) {
+        if (!fractionString || typeof fractionString !== 'string') {
+            return 1; // Default to 1 if input is invalid
+        }
+        const parts = fractionString.split('/');
+        if (parts.length === 2) {
+            const numerator = parseFloat(parts[0]);
+            const denominator = parseFloat(parts[1]);
+            if (!isNaN(numerator) && !isNaN(denominator) && denominator !== 0) {
+                return numerator / denominator;
+            }
+        } else if (!isNaN(parseFloat(fractionString))) {
+            return parseFloat(fractionString); // Handle whole numbers directly
+        }
+        return 1; // Default to 1 if parsing fails
+    }
 
     // Function to dynamically place the unit symbol next to the input value
     function placeUnit(input) {
@@ -434,12 +481,11 @@
         input.addEventListener('input', () => {
           recalc();
           maybeAddRow();
-          toggleSubmit(); // Re-evaluate submit button state
+          toggleSubmit();
           if (input.parentNode.classList.contains('input-wrapper')) {
             placeUnit(input);
           }
         });
-        // Initial placement and visibility of units when row is created
         if (input.parentNode.classList.contains('input-wrapper')) {
           placeUnit(input);
         }
@@ -451,14 +497,14 @@
       }
     }
 
-    // Function to recalculate total board footage
+    // MODIFIED: Function to recalculate total board footage, now using parsedThickness
     function recalc() {
       let total = 0;
       document.querySelectorAll('.entry-row').forEach(r => {
         const qty = parseFloat(r.querySelector('.qty').value) || 0;
         const width = parseFloat(r.querySelector('.width').value) || 0;
         const length = parseFloat(r.querySelector('.length').value) || 0;
-        total += (qty * width * length) / 12;
+        total += (qty * width * length * parsedThickness) / 12; // Multiplied by parsedThickness
       });
       totalDisplay.textContent = `Total BF: ${total.toFixed(2)}`;
     }
@@ -484,23 +530,22 @@
         const length = parseFloat(r.querySelector('.length').value);
         return qty > 0 && width > 0 && length > 0;
       });
-      // Submit button is enabled ONLY if name is filled AND there's at least one valid row
       submitBtn.disabled = !(userNameFilled && anyValidRow);
     }
 
-    // NEW: Function to remove a row
+    // Function to remove a row
     function removeRow(rowElement) {
         rowElement.remove();
         updateRowNumbers();
         recalc();
-        toggleSubmit(); // Re-evaluate submit button state after removal
+        toggleSubmit();
 
         if (entryList.children.length === 0) {
             entryList.append(createRow(1));
         }
     }
 
-    // NEW: Function to update row numbers after removal
+    // Function to update row numbers after removal
     function updateRowNumbers() {
         document.querySelectorAll('.entry-row').forEach((row, index) => {
             row.querySelector('.row-number').textContent = index + 1;
@@ -509,9 +554,6 @@
 
     // --- FileMaker Integration ---
     submitBtn.addEventListener('click', () => {
-        // Since the button is disabled if validation fails, we don't need to re-check here
-        // The user can only click it if it's enabled.
-
         const userName = yourNameInput.value.trim();
         const totalBF = parseFloat(totalDisplay.textContent.replace('Total BF: ', '')) || 0;
 
@@ -526,7 +568,7 @@
                     qty: qty,
                     width: width,
                     length: length,
-                    boardFeet: (qty * width * length) / 12
+                    boardFeet: (qty * width * length * parsedThickness) / 12 // Ensure line item BF also uses thickness
                 });
             }
         });
@@ -534,7 +576,8 @@
         const dataToSend = JSON.stringify({
             userName: userName,
             totalBoardFootage: totalBF,
-            lineItems: lineItems
+            lineItems: lineItems,
+            nominalThickness: nominalThicknessInput.value // Include the raw thickness string
         });
 
         if (window.FileMaker) {
@@ -555,9 +598,15 @@
     });
 
     // Initial setup: Add the first row and set up initial button state
+    // NEW: Parse thickness from the hidden input when the page loads
+    const rawThicknessValue = nominalThicknessInput.value;
+    parsedThickness = parseFraction(rawThicknessValue);
+    thicknessDisplay.textContent = `Thickness: ${rawThicknessValue} (${parsedThickness.toFixed(2)} inches)`;
+
     entryList.append(createRow(1));
-    yourNameInput.addEventListener('input', toggleSubmit); // Listen to name input for validation
-    toggleSubmit(); // Set initial state of submit button
+    yourNameInput.addEventListener('input', toggleSubmit);
+    toggleSubmit();
+    recalc(); // Call recalc initially to show correct total based on loaded thickness
   </script>
 </body>
 </html>
