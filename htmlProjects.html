@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Projects List</title>
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/v/bs4/jq-3.7.0/jszip-3.10.1/dt-2.1.8/b-3.2.0/b-colvis-3.2.0/b-html5-3.2.0/b-print-3.2.0/cr-2.0.4/fh-4.0.1/rg-1.5.1/sc-2.4.3/datatables.min.css" rel="stylesheet">
+ 
+</head>
+<body>
+    <h1>Projects List</h1>
+    <table width=100% id="projectsTable" class="display">
+        <thead>
+            <tr>
+            </tr>
+        </thead>
+    </table>
+
+    <!-- jQuery and DataTables JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/v/bs4/jq-3.7.0/jszip-3.10.1/dt-2.1.8/b-3.2.0/b-colvis-3.2.0/b-html5-3.2.0/b-print-3.2.0/cr-2.0.4/fh-4.0.1/rg-1.5.1/sc-2.4.3/datatables.min.js"></script>
+    <script>
+        // Function to initialize DataTable with JSON data provided dynamically
+        function initializeTable(jsonString) {
+
+            jsonData = JSON.parse(jsonString);
+
+            if (!Array.isArray(jsonData) || jsonData.length === 0) {
+                console.error("Invalid or empty JSON data provided for columns:", jsonData);
+                return;
+            }
+
+            // Generate column definitions based on JSON keys
+            const columns = Object.keys(jsonData[0]).map(key => ({ data: key, title: key.replace(/_/g, ' ') }));
+
+            // Initialize DataTables
+            $('#projectsTable').DataTable({
+                data: jsonData,
+                columns:  columns,
+                paging: false,
+                order: [[3,'asc']]
+            });
+        }
+        function zoomLevel(zoom) {
+            document.body.style.zoom = zoom;
+        }
+
+    </script>
+</body>
+</html>
