@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Users</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            padding: 4px;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .people-container {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            padding: 2px;
+        }
+        
+        .column {
+            display: flex;
+            flex-direction: column;
+            margin-right: 4px;
+            min-width: 150px;
+        }
+        
+        .person-item {
+            font-size: 12px;
+            padding: 2px 4px;
+            margin: 1px 0;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .person-item:hover {
+            opacity: 0.8;
+            transform: translateX(2px);
+        }
+        
+        .person-item.selected {
+            font-weight: bold;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+        }
+        
+        .submit-container {
+            padding: 4px;
+            border-top: 1px solid #ddd;
+            background: #f5f5f5;
+        }
+        
+        .submit-btn {
+            font-size: 12px;
+            padding: 4px 12px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .submit-btn:hover {
+            background: #0056CC;
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="people-container" id="peopleContainer"></div>
+        <div class="submit-container">
+            <button class="submit-btn" id="submitBtn" onclick="submitSelection()">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        let allPeople = [];
+        let filteredPeople = [];
+        let selectedPeople = new Set();
+        let isShiftPressed = false;
+        let containerHeight = 0;
+        
+        // Generate pastel color based on first 3 characters of department name
+        function getDepartmentColor(dept) {
+            if (!dept) return '#E8E8E8';
+            
+            const str = dept.substring(0, 3).toUpperCase();
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            // Generate pastel colors (light, muted tones)
+            const hue = Math.abs(hash) % 360;
+            const saturation = 30 + (Math.abs(hash) % 20); // 30-50% saturation for pastel
+            const lightness = 85 + (Math.abs(hash) % 10); // 85-95% lightness for pastel
+            
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+        
+        // Calculate how many items fit in a column based on container height
+        function calculateItemsPerColumn() {
+            const container = document.getElementById('peopleContainer');
+            if (containerHeight === 0) {
+                containerHeight = container.clientHeight - 10; // Account for padding
+            }
+            
+            // Estimate: each item is approximately 20px (12px font + 2px padding top + 2px padding bottom + 1px margin top + 1px margin bottom + some spacing)
+            const itemHeight = 20;
+            return Math.floor(containerHeight / itemHeight);
+        }
+        
+        // Render people in columns
+        function renderPeople() {
+            const container = document.getElementById('peopleContainer');
+            container.innerHTML = '';
+            
+            if (filteredPeople.length === 0) {
+                return;
+            }
+            
+            const itemsPerColumn = calculateItemsPerColumn();
+            const numColumns = Math.ceil(filteredPeople.length / itemsPerColumn);
+            
+            for (let col = 0; col < numColumns; col++) {
+                const column = document.createElement('div');
+                column.className = 'column';
+                
+                const startIdx = col * itemsPerColumn;
+                const endIdx = Math.min(startIdx + itemsPerColumn, filteredPeople.length);
+                
+                for (let i = startIdx; i < endIdx; i++) {
+                    const person = filteredPeople[i];
+                    const item = document.createElement('div');
+                    item.className = 'person-item';
+                    item.textContent = person.name;
+                    item.style.backgroundColor = getDepartmentColor(person.dept);
+                    item.dataset.id = person.id;
+                    item.dataset.name = person.name;
+                    
+                    if (selectedPeople.has(person.id)) {
+                        item.classList.add('selected');
+                    }
+                    
+                    item.addEventListener('click', function(e) {
+                        handlePersonClick(person.id, e.shiftKey);
+                    });
+                    
+                    column.appendChild(item);
+                }
+                
+                container.appendChild(column);
+            }
+        }
+        
+        // Handle person item click
+        function handlePersonClick(id, shiftKey) {
+            if (shiftKey) {
+                // Toggle selection
+                if (selectedPeople.has(id)) {
+                    selectedPeople.delete(id);
+                } else {
+                    selectedPeople.add(id);
+                }
+            } else {
+                // Single select (clear others)
+                selectedPeople.clear();
+                selectedPeople.add(id);
+            }
+            
+            renderPeople();
+            updateSubmitButton();
+        }
+        
+        // Update submit button state
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = selectedPeople.size === 0;
+        }
+        
+        // Submit selection to FileMaker
+        function submitSelection() {
+            if (selectedPeople.size === 0) return;
+            
+            const selectedNames = Array.from(selectedPeople).map(id => {
+                const person = allPeople.find(p => p.id === id);
+                return person ? person.name : '';
+            }).filter(name => name !== '');
+            
+            // Send to FileMaker
+            if (typeof FileMaker !== 'undefined' && FileMaker.PerformScript) {
+                // Create value list format (pipe-delimited or return-delimited)
+                const valueList = selectedNames.join('\n');
+                FileMaker.PerformScript('ReceiveSelectedUsers', valueList);
+            } else {
+                console.log('Selected users:', selectedNames);
+                console.log('Value list:', selectedNames.join('\n'));
+            }
+        }
+        
+        // Track shift key state
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Shift') {
+                isShiftPressed = true;
+            }
+        });
+        
+        document.addEventListener('keyup', function(e) {
+            if (e.key === 'Shift') {
+                isShiftPressed = false;
+            }
+        });
+        
+        // Handle window resize to recalculate columns
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                containerHeight = 0; // Reset to recalculate
+                renderPeople();
+            }, 100);
+        });
+        
+        // Function called from FileMaker to populate people
+        function populatePeople(id, name, dept) {
+            // This function can be called multiple times, so we'll add to the array
+            // If you want to replace, clear allPeople first
+            allPeople.push({
+                id: id,
+                name: name,
+                dept: dept || ''
+            });
+            
+            // Apply current filter
+            applyFilter();
+        }
+        
+        // Function called from FileMaker to filter by departments
+        function filterDept(depts) {
+            // depts can be a string (value list) or array
+            let deptArray = [];
+            
+            if (typeof depts === 'string') {
+                // Handle FileMaker value list (could be pipe, return, or comma delimited)
+                if (depts.includes('|')) {
+                    deptArray = depts.split('|').map(d => d.trim()).filter(d => d);
+                } else if (depts.includes('\n')) {
+                    deptArray = depts.split('\n').map(d => d.trim()).filter(d => d);
+                } else if (depts.includes(',')) {
+                    deptArray = depts.split(',').map(d => d.trim()).filter(d => d);
+                } else if (depts.trim() !== '') {
+                    deptArray = [depts.trim()];
+                }
+            } else if (Array.isArray(depts)) {
+                deptArray = depts;
+            }
+            
+            // Store filter and apply
+            currentFilter = deptArray;
+            applyFilter();
+        }
+        
+        let currentFilter = [];
+        
+        // Apply current filter to people list
+        function applyFilter() {
+            if (currentFilter.length === 0) {
+                // No filter - show all
+                filteredPeople = [...allPeople];
+            } else {
+                // Filter by departments
+                filteredPeople = allPeople.filter(person => 
+                    currentFilter.includes(person.dept)
+                );
+            }
+            
+            renderPeople();
+        }
+        
+        // Initialize
+        updateSubmitButton();
+        
+        // Initial render after a short delay to ensure container has height
+        setTimeout(function() {
+            containerHeight = 0;
+            renderPeople();
+        }, 100);
+    </script>
+</body>
+</html>
