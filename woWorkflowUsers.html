@@ -207,19 +207,17 @@
         function submitSelection() {
             if (selectedPeople.size === 0) return;
             
-            const selectedNames = Array.from(selectedPeople).map(id => {
-                const person = allPeople.find(p => p.id === id);
-                return person ? person.name : '';
-            }).filter(name => name !== '');
+            // Send IDs back to FileMaker (not names)
+            const selectedIds = Array.from(selectedPeople).filter(id => id);
             
             // Send to FileMaker
             if (typeof FileMaker !== 'undefined' && FileMaker.PerformScript) {
-                // Create value list format (pipe-delimited or return-delimited)
-                const valueList = selectedNames.join('\n');
+                // Create value list format (newline-delimited)
+                const valueList = selectedIds.join('\n');
                 FileMaker.PerformScript('ReceiveSelectedUsers', valueList);
             } else {
-                console.log('Selected users:', selectedNames);
-                console.log('Value list:', selectedNames.join('\n'));
+                console.log('Selected IDs:', selectedIds);
+                console.log('Value list:', selectedIds.join('\n'));
             }
         }
         
@@ -246,18 +244,52 @@
             }, 100);
         });
         
-        // Function called from FileMaker to populate people
-        function populatePeople(id, name, dept) {
-            // This function can be called multiple times, so we'll add to the array
-            // If you want to replace, clear allPeople first
-            allPeople.push({
-                id: id,
-                name: name,
-                dept: dept || ''
+        // Function called from FileMaker to populate people from CSV string
+        // CSV format: "id1,name1,dept1\nid2,name2,dept2" (newline-delimited)
+        // or: "id1,name1,dept1|id2,name2,dept2" (pipe-delimited)
+        function populatePeople(csvData) {
+            if (!csvData || csvData.trim() === '') {
+                allPeople = [];
+                applyFilter();
+                return;
+            }
+            
+            // Clear existing data
+            allPeople = [];
+            selectedPeople.clear();
+            
+            // Determine delimiter (newline or pipe)
+            const delimiter = csvData.includes('\n') ? '\n' : (csvData.includes('|') ? '|' : ',');
+            
+            // Split into rows
+            const rows = csvData.split(delimiter);
+            
+            // Parse each row
+            rows.forEach(row => {
+                row = row.trim();
+                if (!row) return; // Skip empty rows
+                
+                // Split by comma
+                const parts = row.split(',');
+                if (parts.length >= 3) {
+                    allPeople.push({
+                        id: parts[0].trim(),
+                        name: parts[1].trim(),
+                        dept: parts[2].trim() || ''
+                    });
+                } else if (parts.length === 2) {
+                    // Handle case where dept might be empty
+                    allPeople.push({
+                        id: parts[0].trim(),
+                        name: parts[1].trim(),
+                        dept: ''
+                    });
+                }
             });
             
             // Apply current filter
             applyFilter();
+            updateSubmitButton();
         }
         
         // Function called from FileMaker to filter by departments
