@@ -32,6 +32,12 @@
             flex-direction: row;
             align-items: flex-start;
             padding: 2px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .people-container::-webkit-scrollbar {
+            display: none;
         }
         
         .column {
@@ -49,6 +55,9 @@
             border-radius: 2px;
             transition: all 0.2s;
             user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -123,16 +132,34 @@
             return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         }
         
+        // Measure actual height of one person-item (including margin)
+        function measureItemHeight() {
+            const container = document.getElementById('peopleContainer');
+            const item = document.createElement('div');
+            item.className = 'person-item';
+            item.textContent = 'M';
+            const col = document.createElement('div');
+            col.className = 'column';
+            col.style.visibility = 'hidden';
+            col.style.position = 'absolute';
+            col.style.left = '-9999px';
+            col.appendChild(item);
+            container.appendChild(col);
+            const sty = getComputedStyle(item);
+            const h = item.offsetHeight + parseInt(sty.marginTop, 10) + parseInt(sty.marginBottom, 10);
+            col.remove();
+            return h;
+        }
+        
         // Calculate how many items fit in a column based on container height
         function calculateItemsPerColumn() {
             const container = document.getElementById('peopleContainer');
-            if (containerHeight === 0) {
-                containerHeight = container.clientHeight - 10; // Account for padding
-            }
+            const availableHeight = container.clientHeight - 8; // padding + buffer so last row bumps over before crop
+            if (availableHeight <= 0) return 1;
             
-            // Estimate: each item is approximately 20px (12px font + 2px padding top + 2px padding bottom + 1px margin top + 1px margin bottom + some spacing)
-            const itemHeight = 20;
-            return Math.floor(containerHeight / itemHeight);
+            const itemHeight = measureItemHeight();
+            const n = Math.floor(availableHeight / itemHeight);
+            return Math.max(1, n);
         }
         
         // Render people in columns
@@ -144,6 +171,7 @@
                 return;
             }
             
+            containerHeight = 0; // force recalculation each render
             const itemsPerColumn = calculateItemsPerColumn();
             const numColumns = Math.ceil(filteredPeople.length / itemsPerColumn);
             
@@ -162,11 +190,15 @@
                     item.style.backgroundColor = getDepartmentColor(person.dept);
                     item.dataset.id = person.id;
                     item.dataset.name = person.name;
+                    item.title = person.dept ? person.dept : 'No department';
                     
                     if (selectedPeople.has(person.id)) {
                         item.classList.add('selected');
                     }
                     
+                    item.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                    });
                     item.addEventListener('click', function(e) {
                         handlePersonClick(person.id, e.shiftKey);
                     });
@@ -344,8 +376,21 @@
                 );
             }
             
+            // Sort by department alphabetically, then by name within department
+            filteredPeople.sort(function(a, b) {
+                const deptA = (a.dept || '').toLowerCase();
+                const deptB = (b.dept || '').toLowerCase();
+                if (deptA !== deptB) return deptA.localeCompare(deptB);
+                return (a.name || '').localeCompare(b.name || '');
+            });
+            
             renderPeople();
         }
+        
+        // Prevent text selection in people list (shift-click selects multiple people, not text)
+        document.getElementById('peopleContainer').addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
         
         // Initialize
         updateSubmitButton();
