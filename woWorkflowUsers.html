@@ -74,9 +74,8 @@
         }
         
         .submit-container {
-            padding: 4px;
-            border-top: 1px solid #ddd;
-            background: #f5f5f5;
+            padding: 1px;
+            background: #ffffff;
         }
         
         .submit-btn {
@@ -97,6 +96,26 @@
             background: #ccc;
             cursor: not-allowed;
         }
+        
+        .clear-btn {
+            font-size: 12px;
+            padding: 4px 12px;
+            background: transparent;
+            color: #666;
+            border: 1px solid #999;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        
+        .clear-btn:hover {
+            background: #eee;
+            color: #333;
+        }
+        
+        .clear-btn.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +123,7 @@
         <div class="people-container" id="peopleContainer"></div>
         <div class="submit-container">
             <button class="submit-btn" id="submitBtn" onclick="submitSelection()">Submit</button>
+            <button class="clear-btn hidden" id="clearBtn" onclick="clearSelection()">Clear selection</button>
         </div>
     </div>
 
@@ -229,10 +249,19 @@
             updateSubmitButton();
         }
         
-        // Update submit button state
+        // Update submit button state and clear button visibility
         function updateSubmitButton() {
             const submitBtn = document.getElementById('submitBtn');
+            const clearBtn = document.getElementById('clearBtn');
             submitBtn.disabled = selectedPeople.size === 0;
+            clearBtn.classList.toggle('hidden', selectedPeople.size === 0);
+        }
+        
+        // Clear selection (only shown when there is a selection)
+        function clearSelection() {
+            selectedPeople.clear();
+            renderPeople();
+            updateSubmitButton();
         }
         
         // Submit selection to FileMaker
