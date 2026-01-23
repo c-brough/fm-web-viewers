@@ -278,7 +278,7 @@
             if (typeof FileMaker !== 'undefined' && FileMaker.PerformScript) {
                 // Create value list format (newline-delimited)
                 const valueList = selectedIds.join('\n');
-                FileMaker.PerformScript('ReceiveSelectedUsers', valueList);
+                FileMaker.PerformScript('woWorkflow.ReceiveSelectedUsers', valueList);
             } else {
                 console.log('Selected IDs:', selectedIds);
                 console.log('Value list:', selectedIds.join('\n'));
