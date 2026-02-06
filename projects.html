@@ -241,12 +241,134 @@
             color: #888;
             font-size: 14px;
         }
+
+        .bottom-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .bottom-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 8px;
+            background: #f0f0f0;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .bottom-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .bottom-btn svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .bottom-btn.active {
+            background: #007AFF;
+            color: #fff;
+        }
+
+        .search-container {
+            display: none;
+            flex: 1;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+        }
+
+        .search-container.visible {
+            display: flex;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 14px;
+            font-size: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #007AFF;
+        }
+
+        .search-close-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            background: #f0f0f0;
+            color: #666;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .search-close-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .bottom-buttons {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .bottom-buttons.search-active .bottom-btn[data-action="search"] {
+            display: none;
+        }
+
+        .bottom-buttons.search-active .bottom-btn[data-action="menu"] {
+            display: flex;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="scroll-area" id="scrollArea">
             <div id="projectsList"></div>
+        </div>
+        <div class="bottom-bar">
+            <div class="search-container" id="searchContainer">
+                <input type="search" class="search-input" id="searchInput" placeholder="Search projects..." autocomplete="off">
+                <button type="button" class="search-close-btn" id="searchCloseBtn" aria-label="Close search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="bottom-buttons" id="bottomButtons">
+                <button type="button" class="bottom-btn" id="menuBtn" data-action="menu" aria-label="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <button type="button" class="bottom-btn" id="searchBtn" data-action="search" aria-label="Search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="menu-overlay app-menu-overlay" id="appMenuOverlay">
+        <div class="menu-panel">
+            <div class="menu-title">Menu</div>
+            <div class="menu-links">
+                <a href="#" class="menu-link" id="appMenuSettings">Settings</a>
+                <a href="#" class="menu-link" id="appMenuAbout">About</a>
+            </div>
+            <button type="button" class="menu-close" id="appMenuClose">Close</button>
         </div>
     </div>
 
@@ -268,6 +390,7 @@
     <script>
         let allProjects = [];
         let selectedProject = null;
+        let searchQuery = '';
 
         const SAMPLE_PROJECTS = [
             { projectName: 'Riverside Office Complex', projectAbbr: 'ROC', projectID: '1', projectSageNumber: 'SAG-1001', projectPMName: 'Sarah Chen', projectHexColor: '#4A90D9', projectStatus: 'Active' },
@@ -363,7 +486,17 @@
             const container = document.getElementById('projectsList');
             container.innerHTML = '';
 
-            const projectsToRender = allProjects.length > 0 ? allProjects : SAMPLE_PROJECTS;
+            let projectsToRender = allProjects.length > 0 ? allProjects : SAMPLE_PROJECTS;
+
+            if (searchQuery.trim()) {
+                const q = searchQuery.trim().toLowerCase();
+                projectsToRender = projectsToRender.filter(p =>
+                    (p.projectName || '').toLowerCase().includes(q) ||
+                    (p.projectAbbr || '').toLowerCase().includes(q) ||
+                    (p.projectPMName || '').toLowerCase().includes(q) ||
+                    (p.projectStatus || '').toLowerCase().includes(q)
+                );
+            }
 
             // Group by projectStatus
             const groups = {};
@@ -495,6 +628,44 @@
         document.getElementById('menuClose').addEventListener('click', closeMenu);
         document.getElementById('menuOverlay').addEventListener('click', (e) => {
             if (e.target === document.getElementById('menuOverlay')) closeMenu();
+        });
+
+        // Bottom bar: Menu button
+        document.getElementById('menuBtn').addEventListener('click', function() {
+            document.getElementById('appMenuOverlay').classList.add('visible');
+        });
+        document.getElementById('appMenuClose').addEventListener('click', function() {
+            document.getElementById('appMenuOverlay').classList.remove('visible');
+        });
+        document.getElementById('appMenuOverlay').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('visible');
+        });
+        document.querySelectorAll('#appMenuOverlay .menu-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('appMenuOverlay').classList.remove('visible');
+                if (typeof FileMaker !== 'undefined' && FileMaker.PerformScript) {
+                    FileMaker.PerformScript('Projects.AppMenuAction', this.id.replace('appMenu', ''));
+                }
+            });
+        });
+
+        // Bottom bar: Search button
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            document.getElementById('searchContainer').classList.add('visible');
+            document.getElementById('bottomButtons').classList.add('search-active');
+            document.getElementById('searchInput').focus();
+        });
+        document.getElementById('searchCloseBtn').addEventListener('click', function() {
+            document.getElementById('searchContainer').classList.remove('visible');
+            document.getElementById('bottomButtons').classList.remove('search-active');
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            renderProjects();
+        });
+        document.getElementById('searchInput').addEventListener('input', function() {
+            searchQuery = this.value;
+            renderProjects();
         });
 
         // Initialize
