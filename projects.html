@@ -269,6 +269,39 @@
         let allProjects = [];
         let selectedProject = null;
 
+        const SAMPLE_PROJECTS = [
+            { projectName: 'Riverside Office Complex', projectAbbr: 'ROC', projectID: '1', projectSageNumber: 'SAG-1001', projectPMName: 'Sarah Chen', projectHexColor: '#4A90D9', projectStatus: 'Active' },
+            { projectName: 'Downtown Retail Renovation', projectAbbr: 'DRR', projectID: '2', projectSageNumber: 'SAG-1002', projectPMName: 'Michael Torres', projectHexColor: '#E85D75', projectStatus: 'Active' },
+            { projectName: 'Industrial Park Phase 2', projectAbbr: 'IP2', projectID: '3', projectSageNumber: 'SAG-1003', projectPMName: 'Jennifer Walsh', projectHexColor: '#50C878', projectStatus: 'Active' },
+            { projectName: 'Harbor View Condominiums', projectAbbr: 'HVC', projectID: '4', projectSageNumber: 'SAG-1004', projectPMName: 'David Kim', projectHexColor: '#9B59B6', projectStatus: 'In Progress' },
+            { projectName: 'Medical Center Expansion', projectAbbr: 'MCE', projectID: '5', projectSageNumber: 'SAG-1005', projectPMName: 'Amanda Foster', projectHexColor: '#E67E22', projectStatus: 'In Progress' },
+            { projectName: 'Tech Campus Building A', projectAbbr: 'TCB', projectID: '6', projectSageNumber: 'SAG-1006', projectPMName: 'Robert Nguyen', projectHexColor: '#1ABC9C', projectStatus: 'In Progress' },
+            { projectName: 'Central Library Modernization', projectAbbr: 'CLM', projectID: '7', projectSageNumber: 'SAG-1007', projectPMName: 'Emily Rodriguez', projectHexColor: '#3498DB', projectStatus: 'Planning' },
+            { projectName: 'Southside Apartment Complex', projectAbbr: 'SAC', projectID: '8', projectSageNumber: 'SAG-1008', projectPMName: 'James Wilson', projectHexColor: '#2ECC71', projectStatus: 'Planning' },
+            { projectName: 'Airport Terminal Upgrade', projectAbbr: 'ATU', projectID: '9', projectSageNumber: 'SAG-1009', projectPMName: 'Lisa Thompson', projectHexColor: '#8E44AD', projectStatus: 'Planning' },
+            { projectName: 'Warehouse Distribution Center', projectAbbr: 'WDC', projectID: '10', projectSageNumber: 'SAG-1010', projectPMName: 'Kevin Martinez', projectHexColor: '#16A085', projectStatus: 'On Hold' },
+            { projectName: 'Municipal Sports Complex', projectAbbr: 'MSC', projectID: '11', projectSageNumber: 'SAG-1011', projectPMName: 'Rachel Green', projectHexColor: '#C0392B', projectStatus: 'On Hold' },
+            { projectName: 'Historic Hotel Restoration', projectAbbr: 'HHR', projectID: '12', projectSageNumber: 'SAG-1012', projectPMName: 'Thomas Baker', projectHexColor: '#D35400', projectStatus: 'On Hold' },
+            { projectName: 'University Science Wing', projectAbbr: 'USW', projectID: '13', projectSageNumber: 'SAG-1013', projectPMName: 'Nicole Adams', projectHexColor: '#2980B9', projectStatus: 'Completed' },
+            { projectName: 'Highway Interchange Project', projectAbbr: 'HIP', projectID: '14', projectSageNumber: 'SAG-1014', projectPMName: 'Christopher Lee', projectHexColor: '#27AE60', projectStatus: 'Completed' },
+            { projectName: 'Senior Living Facility', projectAbbr: 'SLF', projectID: '15', projectSageNumber: 'SAG-1015', projectPMName: 'Michelle Davis', projectHexColor: '#7F8C8D', projectStatus: 'Completed' },
+            { projectName: 'Solar Farm Installation', projectAbbr: 'SFI', projectID: '16', projectSageNumber: 'SAG-1016', projectPMName: 'Andrew Clark', projectHexColor: '#F39C12', projectStatus: 'Active' },
+            { projectName: 'Water Treatment Plant', projectAbbr: 'WTP', projectID: '17', projectSageNumber: 'SAG-1017', projectPMName: 'Stephanie Hall', projectHexColor: '#34495E', projectStatus: 'Active' },
+            { projectName: 'Mixed-Use Development North', projectAbbr: 'MUD', projectID: '18', projectSageNumber: 'SAG-1018', projectPMName: 'Daniel Moore', projectHexColor: '#E74C3C', projectStatus: 'In Progress' },
+            { projectName: 'Corporate Headquarters Tower', projectAbbr: 'CHT', projectID: '19', projectSageNumber: 'SAG-1019', projectPMName: 'Jessica Taylor', projectHexColor: '#95A5A6', projectStatus: 'In Progress' },
+            { projectName: 'Community Recreation Center', projectAbbr: 'CRC', projectID: '20', projectSageNumber: 'SAG-1020', projectPMName: 'Ryan Anderson', projectHexColor: '#BDC3C7', projectStatus: 'Planning' },
+            { projectName: 'Residential Subdivision Phase 3', projectAbbr: 'RSP', projectID: '21', projectSageNumber: 'SAG-1021', projectPMName: 'Lauren White', projectHexColor: '#2C3E50', projectStatus: 'Planning' },
+            { projectName: 'Data Center Construction', projectAbbr: 'DCC', projectID: '22', projectSageNumber: 'SAG-1022', projectPMName: 'Mark Johnson', projectHexColor: '#7D3C98', projectStatus: 'On Hold' },
+            { projectName: 'Transit Station Redevelopment', projectAbbr: 'TSR', projectID: '23', projectSageNumber: 'SAG-1023', projectPMName: 'Ashley Brown', projectHexColor: '#1E8449', projectStatus: 'On Hold' },
+            { projectName: 'Pedestrian Bridge Project', projectAbbr: 'PBP', projectID: '24', projectSageNumber: 'SAG-1024', projectPMName: 'Brian Miller', projectHexColor: '#5D6D7E', projectStatus: 'Completed' },
+            { projectName: 'Elementary School Addition', projectAbbr: 'ESA', projectID: '25', projectSageNumber: 'SAG-1025', projectPMName: 'Karen Wright', projectHexColor: '#A569BD', projectStatus: 'Completed' },
+            { projectName: 'Boutique Hotel Downtown', projectAbbr: 'BHD', projectID: '26', projectSageNumber: 'SAG-1026', projectPMName: 'Steven Garcia', projectHexColor: '#2874A6', projectStatus: 'Active' },
+            { projectName: 'Green Energy Substation', projectAbbr: 'GES', projectID: '27', projectSageNumber: 'SAG-1027', projectPMName: 'Patricia Lewis', projectHexColor: '#0E6655', projectStatus: 'Active' },
+            { projectName: 'Shopping Mall Renovation', projectAbbr: 'SMR', projectID: '28', projectSageNumber: 'SAG-1028', projectPMName: 'Jason Walker', projectHexColor: '#922B21', projectStatus: 'In Progress' },
+            { projectName: 'Fire Station #7', projectAbbr: 'FS7', projectID: '29', projectSageNumber: 'SAG-1029', projectPMName: 'Nancy Harris', projectHexColor: '#1A5276', projectStatus: 'Planning' },
+            { projectName: 'City Park Pavilion', projectAbbr: 'CPP', projectID: '30', projectSageNumber: 'SAG-1030', projectPMName: 'Eric Robinson', projectHexColor: '#1E8449', projectStatus: 'Completed' }
+        ];
+
         /**
          * Extracts initials from a name (e.g. "John Doe" -> "JD", "Alice" -> "A")
          */
@@ -330,14 +363,11 @@
             const container = document.getElementById('projectsList');
             container.innerHTML = '';
 
-            if (allProjects.length === 0) {
-                container.innerHTML = '<div class="empty-state">No projects to display. Call getParameters(data) from FileMaker to load projects.</div>';
-                return;
-            }
+            const projectsToRender = allProjects.length > 0 ? allProjects : SAMPLE_PROJECTS;
 
             // Group by projectStatus
             const groups = {};
-            allProjects.forEach(p => {
+            projectsToRender.forEach(p => {
                 const status = p.projectStatus || 'Uncategorized';
                 if (!groups[status]) groups[status] = [];
                 groups[status].push(p);
