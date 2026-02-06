@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Projects</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+
+        .container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .scroll-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px;
+        }
+
+        .scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-area::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .section-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            background: #333;
+            color: #fff;
+            margin: 4px 0 2px 0;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            margin: 2px 0;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            border-left: 4px solid transparent;
+        }
+
+        .project-row:hover {
+            background: #f0f0f0;
+        }
+
+        .project-row:active {
+            transform: scale(0.99);
+        }
+
+        .project-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .project-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #222;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .project-abbr {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .project-initials {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #e0e0e0;
+            color: #444;
+            border-radius: 11px;
+        }
+
+        /* Icon buttons - visible only in landscape / iPad */
+        .project-actions {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            background: #f0f0f0;
+            color: #555;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .action-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Landscape and iPad: show action buttons */
+        @media (min-width: 768px), (orientation: landscape) {
+            .project-actions {
+                display: flex;
+            }
+        }
+
+        /* Menu overlay */
+        .menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+        }
+
+        .menu-overlay.visible {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .menu-panel {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 340px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+            color: #222;
+        }
+
+        .menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-link {
+            display: block;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: #007AFF;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .menu-link:hover {
+            background: #f0f7ff;
+        }
+
+        .menu-close {
+            margin-top: 16px;
+            padding: 10px;
+            font-size: 14px;
+            color: #666;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .menu-close:hover {
+            background: #eee;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="scroll-area" id="scrollArea">
+            <div id="projectsList"></div>
+        </div>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-panel">
+            <div class="menu-title" id="menuTitle">Project Options</div>
+            <div class="menu-links">
+                <a href="#" class="menu-link" data-page="contracts.html">Contracts</a>
+                <a href="#" class="menu-link" data-page="subProjects.html">Sub Projects</a>
+                <a href="#" class="menu-link" data-page="purchaseOrders.html">Purchase Orders</a>
+                <a href="#" class="menu-link" data-page="workOrders.html">Work Orders</a>
+                <a href="#" class="menu-link" data-page="packingSlips.html">Packing Slips</a>
+                <a href="#" class="menu-link" data-page="samples.html">Samples</a>
+            </div>
+            <button type="button" class="menu-close" id="menuClose">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let allProjects = [];
+        let selectedProject = null;
+
+        /**
+         * Extracts initials from a name (e.g. "John Doe" -> "JD", "Alice" -> "A")
+         */
+        function getInitials(name) {
+            if (!name || typeof name !== 'string') return '';
+            const parts = name.trim().split(/\s+/).filter(Boolean);
+            if (parts.length === 0) return '';
+            if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+            return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+        }
+
+        /**
+         * Called from FileMaker to populate projects.
+         * Data format: each row = projectName|projectAbbr|projectID|projectSageNumber|projectPMName|projectHexColor|projectStatus
+         * Rows separated by newline (\n) or return (\r)
+         * Example: "Acme Corp|AC|1|12345|John Doe|#4A90D9|Active\nBeta Inc|BI|2|67890|Jane Smith|#E85D75|Completed"
+         */
+        function getParameters(data) {
+            if (!data || (typeof data === 'string' && data.trim() === '')) {
+                allProjects = [];
+                renderProjects();
+                return;
+            }
+
+            allProjects = [];
+            const normalized = String(data).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            const rows = normalized.split('\n');
+
+            rows.forEach(row => {
+                row = row.trim();
+                if (!row) return;
+
+                const parts = row.split('|');
+                if (parts.length >= 7) {
+                    allProjects.push({
+                        projectName: parts[0].trim(),
+                        projectAbbr: parts[1].trim(),
+                        projectID: parts[2].trim(),
+                        projectSageNumber: parts[3].trim(),
+                        projectPMName: parts[4].trim(),
+                        projectHexColor: parts[5].trim() || '#888888',
+                        projectStatus: parts[6].trim() || 'Uncategorized'
+                    });
+                }
+            });
+
+            renderProjects();
+        }
+
+        /**
+         * Alternative: populate by single project (for Add/Update scenarios)
+         * Or use getParameters with multiple rows for bulk load.
+         */
+        function populateProjects(data) {
+            getParameters(data);
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('projectsList');
+            container.innerHTML = '';
+
+            if (allProjects.length === 0) {
+                container.innerHTML = '<div class="empty-state">No projects to display. Call getParameters(data) from FileMaker to load projects.</div>';
+                return;
+            }
+
+            // Group by projectStatus
+            const groups = {};
+            allProjects.forEach(p => {
+                const status = p.projectStatus || 'Uncategorized';
+                if (!groups[status]) groups[status] = [];
+                groups[status].push(p);
+            });
+
+            // Sort groups (optional: alphabetically by status)
+            const sortedStatuses = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+
+            sortedStatuses.forEach(status => {
+                const header = document.createElement('div');
+                header.className = 'section-header';
+                header.textContent = status;
+                container.appendChild(header);
+
+                groups[status].forEach(project => {
+                    const row = document.createElement('div');
+                    row.className = 'project-row';
+                    row.style.borderLeftColor = project.projectHexColor || '#888';
+
+                    row.innerHTML = `
+                        <div class="project-info">
+                            <div class="project-name">${escapeHtml(project.projectName)}</div>
+                            <div class="project-meta">
+                                <span class="project-abbr">${escapeHtml(project.projectAbbr)}</span>
+                                <span class="project-initials">${escapeHtml(getInitials(project.projectPMName))}</span>
+                            </div>
+                        </div>
+                        <div class="project-actions">
+                            <button type="button" class="action-btn" title="Contracts" data-action="contracts" aria-label="Contracts">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            </button>
+                            <button type="button" class="action-btn" title="Sub Projects" data-action="subProjects" aria-label="Sub Projects">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                            </button>
+                            <button type="button" class="action-btn" title="Purchase Orders" data-action="purchaseOrders" aria-label="Purchase Orders">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                            </button>
+                            <button type="button" class="action-btn" title="Calendar" data-action="calendar" aria-label="Calendar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            </button>
+                        </div>
+                    `;
+
+                    const projectInfo = row.querySelector('.project-info');
+                    const actionBtns = row.querySelectorAll('.action-btn');
+
+                    function navigateToPage(page) {
+                        selectedProject = project;
+                        openMenu(project);
+                        // If they clicked an action button, we could navigate directly
+                        if (page) {
+                            navigateTo(page);
+                        }
+                    }
+
+                    projectInfo.addEventListener('click', () => navigateToPage(null));
+                    row.addEventListener('click', (e) => {
+                        if (e.target.closest('.action-btn')) {
+                            e.stopPropagation();
+                            const btn = e.target.closest('.action-btn');
+                            const action = btn.dataset.action;
+                            const pageMap = {
+                                contracts: 'contracts.html',
+                                subProjects: 'subProjects.html',
+                                purchaseOrders: 'purchaseOrders.html',
+                                calendar: 'workOrders.html'  // scheduling - change if you have a dedicated calendar page
+                            };
+                            if (pageMap[action]) {
+                                selectedProject = project;
+                                navigateTo(pageMap[action]);
+                            }
+                        }
+                    });
+
+                    container.appendChild(row);
+                });
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function openMenu(project) {
+            selectedProject = project;
+            document.getElementById('menuTitle').textContent = project.projectName || 'Project Options';
+            document.getElementById('menuOverlay').classList.add('visible');
+
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.href = buildUrl(link.dataset.page);
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    navigateTo(link.dataset.page);
+                };
+            });
+        }
+
+        function closeMenu() {
+            document.getElementById('menuOverlay').classList.remove('visible');
+        }
+
+        function buildUrl(page) {
+            if (!selectedProject) return page;
+            const base = page.replace(/^.*\//, '');
+            const params = new URLSearchParams();
+            params.set('projectID', selectedProject.projectID);
+            params.set('projectName', selectedProject.projectName || '');
+            params.set('projectAbbr', selectedProject.projectAbbr || '');
+            params.set('projectSageNumber', selectedProject.projectSageNumber || '');
+            return base + '?' + params.toString();
+        }
+
+        function navigateTo(page) {
+            const url = buildUrl(page);
+            if (typeof FileMaker !== 'undefined' && FileMaker.PerformScript) {
+                FileMaker.PerformScript('Projects.NavigateToPage', url);
+            } else {
+                window.location.href = url;
+            }
+            closeMenu();
+        }
+
+        document.getElementById('menuClose').addEventListener('click', closeMenu);
+        document.getElementById('menuOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('menuOverlay')) closeMenu();
+        });
+
+        // Initialize
+        renderProjects();
+    </script>
+</body>
+</html>
