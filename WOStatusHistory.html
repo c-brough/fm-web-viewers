@@ -1,11 +1,128 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WO Status History</title>
-</head>
-<body>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Arial;
+      margin: 0;
+      padding: 10px;
+      background: #fff;
+    }
 
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      font-size: 13px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f6f6f6;
+      font-weight: 700;
+    }
+
+    tr:hover td {
+      background: #fafafa;
+    }
+
+    .status {
+      font-weight: 600;
+    }
+
+    .date, .woid {
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .empty {
+      color: #888;
+      font-style: italic;
+      padding: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Status</th>
+        <th>Date</th>
+        <th>WO ID</th>
+      </tr>
+    </thead>
+    <tbody id="historyBody">
+      <tr><td colspan="3" class="empty">No status history</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    /**
+     * FileMaker calls:
+     *   Perform JavaScript in Web Viewer -> populateStatusHistory(csv)
+     *
+     * Expected CSV format:
+     *   - Columns separated by: §
+     *   - Rows separated by: ¶ or newline (CR/LF)
+     *   - Columns: status | statusDateStart | workorderID
+     */
+    function populateStatusHistory(csv) {
+      const tbody = document.getElementById("historyBody");
+      tbody.innerHTML = "";
+
+      if (!csv || !csv.trim()) {
+        tbody.innerHTML = `<tr><td colspan="3" class="empty">No status history</td></tr>`;
+        return 0;
+      }
+
+      // Split rows robustly: handles ¶, CR, LF, CRLF
+      const rows = String(csv)
+        .split(/\r\n|\r|\n|¶/g)
+        .filter(Boolean)
+        .map(r => r.split("§"));
+
+      rows.forEach(cols => {
+        const status = esc(cols[0] || "");
+        const date   = esc(toDateOnly(cols[1] || ""));
+        const woid   = esc(cols[2] || "");
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="status">${status}</td>
+          <td class="date">${date}</td>
+          <td class="woid">${woid}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      return rows.length; // useful for debugging
+    }
+
+    // Converts "2026-02-09 05118" or "2026-02-09 05:11:18" to "2026-02-09"
+    function toDateOnly(s) {
+      s = String(s).trim();
+      if (!s) return "";
+      return s.split(/\s+/)[0];
+    }
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[c]));
+    }
+  </script>
 </body>
 </html>
